@@ -1,0 +1,9 @@
+.auth { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+.auth-card { background: #fff; border-radius: 18px; padding: 28px 22px;
+  width: 100%; max-width: 400px; box-shadow: 0 4px 20px rgba(0,0,0,.08); }
+.auth-card h1 { font-size: 1.5rem; }
+.auth-card .sub { color: var(--muted); font-size: .85rem; margin: 4px 0 16px; }
+.auth-card .btn { margin-top: 18px; }
+.auth .links { text-align: center; margin-top: 16px; font-size: .85rem; }
+.auth .links a { color: var(--primary); }
+.auth .msg { margin-top: 12px; font-size: .85rem; color: #b45309; text-align: center; }

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Daftar — BarberCatat</title>
+<link rel="stylesheet" href="css/style.css"><link rel="stylesheet" href="css/auth.css">
+</head>
+<body class="auth">
+<div class="auth-card">
+  <h1>✂️ BarberCatat</h1>
+  <p class="sub">Buat akun merchant kamu</p>
+
+  <form id="form-signup">
+    <label>Nama Usaha</label>
+    <input type="text" id="business" required placeholder="Barber Jaya">
+    <label>Email</label>
+    <input type="email" id="email" required>
+    <label>Password (min. 6 karakter)</label>
+    <input type="password" id="password" required minlength="6">
+    <button type="submit" class="btn btn-primary">Daftar</button>
+  </form>
+  <p class="links"><a href="login.html">Sudah punya akun? Masuk</a></p>
+  <p id="msg" class="msg"></p>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script>
+  $('#form-signup').addEventListener('submit', async e => {
+    e.preventDefault();
+    $('#msg').textContent = 'Mendaftarkan...';
+
+    const { data, error } = await db.auth.signUp({
+      email: $('#email').value,
+      password: $('#password').value,
+      options: {
+        data: { business_name: $('#business').value }, // dipakai saat onboarding
+        emailRedirectTo: location.origin + '/login.html'
+      }
+    });
+    if (error) return $('#msg').textContent = error.message;
+
+    $('#msg').innerHTML =
+      '✅ Berhasil! Cek email untuk verifikasi, lalu <a href="login.html">login</a>.';
+    $('#form-signup').reset();
+  });
+</script>
+</body>
+</html>

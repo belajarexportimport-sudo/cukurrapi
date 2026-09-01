@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dashboard — BarberCatat</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app">
+  <header class="app-header" id="header"></header>
+
+  <nav class="desktop-nav" id="dnav">
+    <a href="dashboard.html" class="active">📊 Dashboard</a>
+    <a href="transactions.html">✂️ Transaksi</a>
+    <a href="services.html">💰 Harga Paket</a>
+    <a href="employees.html">👤 Karyawan</a>
+    <a href="settings.html">⚙️ Pengaturan</a>
+  </nav>
+
+  <div class="filters" id="filters">
+    <button data-range="today" class="active">Hari ini</button>
+    <button data-range="yesterday">Kemarin</button>
+    <button data-range="7d">7 hari</button>
+    <button data-range="month">Bulan ini</button>
+    <button data-range="custom">📅 Custom</button>
+  </div>
+  <div id="custom-range" style="display:none;margin-bottom:14px">
+    <input type="date" id="from"> <input type="date" id="to">
+    <button class="btn btn-outline" style="margin-top:8px" onclick="loadDashboard()">Terapkan</button>
+  </div>
+
+  <div class="card stats" id="stats"></div>
+  <h3 style="margin:10px 0">Performa Karyawan</h3>
+  <div id="perf"></div>
+</div>
+
+<nav class="bottom">
+  <a href="dashboard.html" class="active"><span class="icon">📊</span>Dashboard</a>
+  <a href="transactions.html"><span class="icon">✂️</span>Transaksi</a>
+  <a href="settings.html"><span class="icon">⚙️</span>Setelan</a>
+</nav>
+<button class="fab" onclick="location.href='transactions.html#new'">+</button>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/dashboard.js"></script>
+</body>
+</html>

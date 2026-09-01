@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Transaksi — BarberCatat</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app">
+  <header class="app-header" id="header"></header>
+
+  <div id="list-view">
+    <div class="filters" id="trx-filters">
+      <input type="date" id="f-date" style="flex:1">
+      <select id="f-employee" style="flex:1"></select>
+      <select id="f-service" style="flex:1"></select>
+    </div>
+    <div id="history"></div>
+  </div>
+
+  <!-- Modal tambah/edit transaksi -->
+  <div class="modal-bg" id="modal">
+    <div class="modal">
+      <h3 id="modal-title">Tambah Transaksi</h3>
+      <form id="trx-form">
+        <label>Pemangkas</label>
+        <select id="t-employee" required></select>
+        <label>Layanan</label>
+        <select id="t-service" required></select>
+        <label>Harga</label>
+        <input type="number" id="t-price" required min="0">
+        <label>Tanggal</label>
+        <input type="date" id="t-date" required>
+        <label>Jam</label>
+        <input type="time" id="t-time" required>
+        <div style="display:flex;gap:8px;margin-top:18px">
+          <button type="button" class="btn btn-outline" onclick="closeModal()">Batal</button>
+          <button type="submit" class="btn btn-gold" style="flex:1">💾 Simpan Transaksi</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<nav class="bottom">
+  <a href="dashboard.html"><span class="icon">📊</span>Dashboard</a>
+  <a href="transactions.html" class="active"><span class="icon">✂️</span>Transaksi</a>
+  <a href="settings.html"><span class="icon">⚙️</span>Setelan</a>
+</nav>
+<button class="fab" onclick="openModal()">+</button>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/transactions.js"></script>
+</body>
+</html>
