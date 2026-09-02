@@ -54,6 +54,7 @@ async function init() {
       ${services.length === 0 ? 'Belum ada layanan.<br>Tambah dulu di menu <b>Harga Paket</b>.' : ''}
     </div>`;
     $('#fab').style.display = 'none';
+    $('#btn-add-trx').style.display = 'none';
     return;
   }
 
