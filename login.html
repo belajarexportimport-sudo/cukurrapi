@@ -52,7 +52,7 @@
     const email = $('#email').value.trim();
     if (!email) { $('#msg').textContent = 'Isi email dulu ya'; return; }
     const { error } = await db.auth.resetPasswordForEmail(email, {
-      redirectTo: location.origin + location.pathname.replace('login.html', 'reset-password.html')
+      redirectTo: location.origin + '/reset-password'
     });
     $('#msg').className = error ? 'msg' : 'msg ok';
     $('#msg').textContent = error ? error.message : 'Link reset password dikirim ke email kamu.';

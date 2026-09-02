@@ -38,7 +38,7 @@
       password: $('#password').value,
       options: {
         data: { business_name: $('#business').value.trim() }, // dipakai saat onboarding
-        emailRedirectTo: location.origin + location.pathname.replace('signup.html', 'login.html')
+        emailRedirectTo: location.origin + '/login'
       }
     });
     btn.disabled = false;
