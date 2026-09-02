@@ -18,6 +18,11 @@
   </nav>
 
   <div class="app-content">
+    <div class="kasir-bar" id="kasir-bar" style="display:none">
+      <span>👤 Kasir HP ini: <b id="kasir-name">-</b></span>
+      <button type="button" onclick="openKasirModal(true)">Ganti</button>
+    </div>
+
     <div class="filters trx" id="trx-filters">
       <input type="date" id="f-date">
       <select id="f-employee"></select>
@@ -26,20 +31,27 @@
     <div id="history"></div>
   </div>
 
-  <!-- POS: tambah transaksi cepat (tap pemangkas -> tap layanan -> tersimpan) -->
+  <!-- Pilih kasir HP ini (wajib saat pertama kali, atau via tombol Ganti) -->
+  <div class="modal-bg" id="kasir-modal">
+    <div class="modal">
+      <div class="pos-header">
+        <h3 style="flex:1">Kamu siapa?</h3>
+        <button type="button" class="x" id="kasir-close" onclick="closeKasirModal()" style="visibility:hidden">✕</button>
+      </div>
+      <p class="pos-step-label">Pilih namamu — HP ini akan mengingatnya untuk transaksi berikutnya.</p>
+      <div class="pos-grid" id="kasir-employees"></div>
+    </div>
+  </div>
+
+  <!-- POS: tambah transaksi cepat (langsung pilih layanan, kasir sudah otomatis) -->
   <div class="modal-bg" id="pos-modal">
     <div class="modal">
       <div class="pos-header">
-        <button type="button" class="back" id="pos-back" style="visibility:hidden" onclick="posBack()">←</button>
-        <h3 id="pos-title">Pilih Pemangkas</h3>
+        <h3 id="pos-title" style="flex:1">Pilih Layanan</h3>
         <button type="button" class="x" onclick="closePos()">✕</button>
       </div>
 
-      <div id="pos-step-employee">
-        <div class="pos-grid" id="pos-employees"></div>
-      </div>
-
-      <div id="pos-step-service" style="display:none">
+      <div id="pos-step-service">
         <p class="pos-step-label" id="pos-selected-employee"></p>
         <div class="pos-grid" id="pos-services"></div>
         <div class="pos-time-toggle" onclick="toggleTime()">🕒 Ubah tanggal / jam</div>

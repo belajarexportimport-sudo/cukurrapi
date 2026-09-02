@@ -1,14 +1,33 @@
 // js/transactions.js
 let employees = [], services = [];
-let posEmployee = null;   // { id, name } dipilih di step 1
+let merchantId = null;
+let kasir = null;         // { id, name } — karyawan yang "login" di HP ini
 let editingId = null;
 let saving = false;
+
+function kasirKey() { return `bc_kasir_${merchantId}`; }
+
+function loadStoredKasir() {
+  try {
+    const raw = localStorage.getItem(kasirKey());
+    if (!raw) return null;
+    const val = JSON.parse(raw);
+    // pastikan karyawan itu masih aktif
+    if (val?.id && employees.some(e => e.id === val.id)) return val;
+    return null;
+  } catch { return null; }
+}
+
+function saveStoredKasir(val) {
+  try { localStorage.setItem(kasirKey(), JSON.stringify(val)); } catch {}
+}
 
 async function init() {
   const ctx = await requireMerchant();
   if (!ctx) return;
   if (!ctx.merchant) { location.href = 'dashboard.html'; return; }
   const { merchant } = ctx;
+  merchantId = merchant.id;
 
   $('#header').innerHTML = `
     ${merchant.logo_url ? `<img class="logo" src="${merchant.logo_url}" alt="logo">` : '<div style="font-size:2rem">✂️</div>'}
@@ -42,25 +61,58 @@ async function init() {
   $('#edit-form').onsubmit = saveEdit;
   loadHistory();
 
-  if (location.hash === '#new') openPos();
+  // Kasir HP ini: kalau belum pernah dipilih (atau karyawannya sudah nonaktif), wajib pilih dulu
+  kasir = loadStoredKasir();
+  if (kasir) {
+    renderKasirBar();
+  } else {
+    openKasirModal(false);
+  }
+
+  if (location.hash === '#new' && kasir) openPos();
+}
+
+/* ================= Kasir HP ini ================= */
+
+function renderKasirBar() {
+  $('#kasir-bar').style.display = 'flex';
+  $('#kasir-name').textContent = kasir?.name || '-';
+}
+
+function openKasirModal(dismissable) {
+  $('#kasir-close').style.visibility = dismissable ? 'visible' : 'hidden';
+  $('#kasir-employees').innerHTML = employees.map(e => `
+    <button type="button" class="pos-btn" onclick='selectKasir(${JSON.stringify(e.id)}, ${JSON.stringify(e.name)})'>
+      <span class="ic">✂️</span><span class="n">${e.name}</span>
+    </button>`).join('');
+  $('#kasir-modal').classList.add('open');
+}
+function closeKasirModal() {
+  $('#kasir-modal').classList.remove('open');
+}
+function selectKasir(id, name) {
+  kasir = { id, name };
+  saveStoredKasir(kasir);
+  renderKasirBar();
+  closeKasirModal();
 }
 
 /* ================= POS quick-add flow ================= */
 
 function openPos() {
-  posEmployee = null;
-  $('#pos-step-employee').style.display = 'block';
-  $('#pos-step-service').style.display = 'none';
+  if (!kasir) { openKasirModal(false); return; }
+
+  $('#pos-step-service').style.display = 'block';
   $('#pos-step-done').style.display = 'none';
-  $('#pos-back').style.visibility = 'hidden';
-  $('#pos-title').textContent = 'Pilih Pemangkas';
+  $('#pos-title').textContent = 'Pilih Layanan';
+  $('#pos-selected-employee').textContent = '✂️ ' + kasir.name;
   $('#pos-time-box').classList.remove('open');
   $('#pos-date').value = todayISO();
   $('#pos-time').value = nowHHMM();
 
-  $('#pos-employees').innerHTML = employees.map(e => `
-    <button type="button" class="pos-btn" onclick='selectPosEmployee(${JSON.stringify(e.id)}, ${JSON.stringify(e.name)})'>
-      <span class="ic">✂️</span><span class="n">${e.name}</span>
+  $('#pos-services').innerHTML = services.map(s => `
+    <button type="button" class="pos-btn" onclick='selectPosService(${JSON.stringify(s.id)}, ${JSON.stringify(s.name)}, ${s.price})'>
+      <span class="n">${s.name}</span><span class="p">${rupiah(s.price)}</span>
     </button>`).join('');
 
   $('#pos-modal').classList.add('open');
@@ -71,38 +123,16 @@ function closePos() {
   history.replaceState(null, '', location.pathname);
 }
 
-function selectPosEmployee(id, name) {
-  posEmployee = { id, name };
-  $('#pos-step-employee').style.display = 'none';
-  $('#pos-step-service').style.display = 'block';
-  $('#pos-back').style.visibility = 'visible';
-  $('#pos-title').textContent = 'Pilih Layanan';
-  $('#pos-selected-employee').textContent = '✂️ ' + name;
-
-  $('#pos-services').innerHTML = services.map(s => `
-    <button type="button" class="pos-btn" onclick='selectPosService(${JSON.stringify(s.id)}, ${JSON.stringify(s.name)}, ${s.price})'>
-      <span class="n">${s.name}</span><span class="p">${rupiah(s.price)}</span>
-    </button>`).join('');
-}
-
-function posBack() {
-  posEmployee = null;
-  $('#pos-step-service').style.display = 'none';
-  $('#pos-step-employee').style.display = 'block';
-  $('#pos-back').style.visibility = 'hidden';
-  $('#pos-title').textContent = 'Pilih Pemangkas';
-}
-
 function toggleTime() {
   $('#pos-time-box').classList.toggle('open');
 }
 
 async function selectPosService(id, name, price) {
-  if (saving || !posEmployee) return;
+  if (saving || !kasir) return;
   saving = true;
 
   const payload = {
-    employee_id: posEmployee.id,
+    employee_id: kasir.id,
     service_id: id,
     price,
     transaction_date: $('#pos-date').value || todayISO(),
@@ -115,10 +145,9 @@ async function selectPosService(id, name, price) {
 
   $('#pos-step-service').style.display = 'none';
   $('#pos-step-done').style.display = 'block';
-  $('#pos-back').style.visibility = 'hidden';
   $('#pos-title').textContent = 'Tersimpan';
   $('#pos-done-amt').textContent = rupiah(price);
-  $('#pos-done-desc').textContent = `${posEmployee.name} · ${name}`;
+  $('#pos-done-desc').textContent = `${kasir.name} · ${name}`;
 
   loadHistory();
 }
