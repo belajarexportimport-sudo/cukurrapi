@@ -7,3 +7,4 @@
 .auth .links { text-align: center; margin-top: 16px; font-size: .85rem; }
 .auth .links a { color: var(--primary); }
 .auth .msg { margin-top: 12px; font-size: .85rem; color: #b45309; text-align: center; }
+.auth .msg.ok { color: #166534; }

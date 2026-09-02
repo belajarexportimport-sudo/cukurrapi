@@ -1,71 +1,96 @@
-// js/onboarding.js — load di dashboard.html sebelum dashboard.js
-async function checkOnboarding(ctx) {
-  if (ctx.merchant) return; // sudah setup
+// js/onboarding.js — dimuat di dashboard.html, sebelum js/dashboard.js
+// Menampilkan wizard 4 langkah jika user belum punya merchant.
+
+let onbUser = null;
+
+function checkOnboarding(ctx) {
+  if (ctx.merchant) return false; // sudah setup, tidak perlu onboarding
+  onbUser = ctx.user;
 
   const businessName = ctx.user.user_metadata?.business_name || '';
   $('#app-content').innerHTML = `
-    <div class="card" style="margin-top:20px">
+    <div class="card" style="margin-top:12px">
       <h2 style="text-align:center">🚀 Yuk Setup Usaha Kamu</h2>
-      <div style="margin-top:16px">
 
-        <div class="onb-step active" data-step="1">
-          <label>Nama usaha Anda?</label>
-          <input id="onb-name" value="${businessName}" placeholder="Barber Jaya">
-          <div style="display:flex;gap:8px;margin-top:14px">
-            <button class="btn btn-outline" onclick="skipOnboarding()">Lewati</button>
-            <button class="btn btn-gold" style="flex:1" onclick="onbCreateMerchant()">Lanjut →</button>
-          </div>
+      <div class="onb-step active" data-step="1">
+        <p class="onb-progress">Langkah 1/4</p>
+        <label>Nama usaha Anda?</label>
+        <input id="onb-name" value="${escapeHtml(businessName)}" placeholder="Barber Jaya">
+        <div style="display:flex;gap:8px;margin-top:14px">
+          <button type="button" class="btn btn-outline" onclick="onbSkipAll()">Lewati semua</button>
+          <button type="button" class="btn btn-gold" style="flex:1" onclick="onbCreateMerchant()">Lanjut →</button>
         </div>
+      </div>
 
-        <div class="onb-step" data-step="2">
-          <p><b>Step 2/4</b> — Tambahkan layanan pertama</p>
-          <label>Nama layanan</label><input id="onb-service" placeholder="Potong Rambut">
-          <label>Harga (Rp)</label><input id="onb-price" type="number" placeholder="30000">
-          <button class="btn btn-gold" style="margin-top:14px" onclick="onbAddService()">Lanjut →</button>
+      <div class="onb-step" data-step="2">
+        <p class="onb-progress">Langkah 2/4</p>
+        <p style="margin-bottom:10px"><b>Tambahkan layanan pertama</b></p>
+        <label>Nama layanan</label><input id="onb-service" placeholder="Potong Rambut">
+        <label>Harga (Rp)</label><input id="onb-price" type="number" min="0" placeholder="30000">
+        <div style="display:flex;gap:8px;margin-top:14px">
+          <button type="button" class="btn btn-outline" onclick="onbGo(3)">Lewati</button>
+          <button type="button" class="btn btn-gold" style="flex:1" onclick="onbAddService()">Lanjut →</button>
         </div>
+      </div>
 
-        <div class="onb-step" data-step="3">
-          <p><b>Step 3/4</b> — Tambahkan pemangkas</p>
-          <label>Nama pemangkas</label><input id="onb-employee" placeholder="Andi">
-          <button class="btn btn-gold" style="margin-top:14px" onclick="onbAddEmployee()">Lanjut →</button>
+      <div class="onb-step" data-step="3">
+        <p class="onb-progress">Langkah 3/4</p>
+        <p style="margin-bottom:10px"><b>Tambahkan pemangkas</b></p>
+        <label>Nama pemangkas</label><input id="onb-employee" placeholder="Andi">
+        <div style="display:flex;gap:8px;margin-top:14px">
+          <button type="button" class="btn btn-outline" onclick="onbGo(4)">Lewati</button>
+          <button type="button" class="btn btn-gold" style="flex:1" onclick="onbAddEmployee()">Lanjut →</button>
         </div>
+      </div>
 
-        <div class="onb-step" data-step="4">
-          <div class="empty"><div class="big">🎉</div>
-            <b>Selesai! Anda siap mencatat transaksi.</b></div>
-          <button class="btn btn-primary" onclick="location.reload()">Buka Dashboard</button>
-        </div>
-
+      <div class="onb-step" data-step="4">
+        <div class="empty"><div class="big">🎉</div>
+          <b>Selesai! Anda siap mencatat transaksi.</b></div>
+        <button type="button" class="btn btn-primary" onclick="location.reload()">Buka Dashboard</button>
       </div>
     </div>`;
+  return true;
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
 }
 
 function onbGo(step) {
-  document.querySelectorAll('.onb-step').forEach(s =>
-    s.classList.toggle('active', s.dataset.step == step));
+  $$('.onb-step').forEach(s => s.classList.toggle('active', s.dataset.step == step));
 }
-function skipOnboarding() { location.href = 'settings.html'; } // bisa diisi nanti
 
 async function onbCreateMerchant() {
   const name = $('#onb-name').value.trim();
   if (!name) return alert('Nama usaha wajib diisi');
-  const { user } = await requireMerchant(db);
-  const { error } = await db.from('merchants').insert({ owner_id: user.id, name });
+  const { error } = await db.from('merchants').insert({ owner_id: onbUser.id, name });
   if (error) return alert(error.message);
   onbGo(2);
 }
+
+// "Lewati semua": tetap buat merchant (wajib agar bisa masuk dashboard),
+// pakai nama default kalau kosong, lalu langsung ke step selesai.
+async function onbSkipAll() {
+  const name = $('#onb-name').value.trim() || 'Usaha Saya';
+  const { error } = await db.from('merchants').insert({ owner_id: onbUser.id, name });
+  if (error) return alert(error.message);
+  onbGo(4);
+}
+
 async function onbAddService() {
-  const { merchant } = await requireMerchant(db);
-  await db.from('services').insert({
-    merchant_id: merchant.id,
-    name: $('#onb-service').value.trim() || 'Potong Rambut',
-    price: Number($('#onb-price').value) || 0
-  });
+  const name = $('#onb-service').value.trim();
+  const price = Number($('#onb-price').value);
+  if (!name) return alert('Nama layanan wajib diisi');
+  if (isNaN(price) || price < 0) return alert('Harga tidak valid');
+  const { error } = await db.from('services').insert({ name, price });
+  if (error) return alert(error.message);
   onbGo(3);
 }
+
 async function onbAddEmployee() {
-  const { merchant } = await requireMerchant(db);
   const name = $('#onb-employee').value.trim();
-  if (name) await db.from('employees').insert({ merchant_id: merchant.id, name });
+  if (!name) return alert('Nama pemangkas wajib diisi');
+  const { error } = await db.from('employees').insert({ name });
+  if (error) return alert(error.message);
   onbGo(4);
 }

@@ -8,15 +8,28 @@
 <body>
 <div class="app">
   <header class="app-header" id="header"></header>
-  <h2 class="page-title">👤 Karyawan</h2>
-  <button class="btn btn-primary" onclick="openModal()">+ Tambah Karyawan</button>
-  <div id="list" style="margin-top:16px"></div>
+
+  <nav class="desktop-nav" id="dnav">
+    <a href="dashboard.html">📊 Dashboard</a>
+    <a href="transactions.html">✂️ Transaksi</a>
+    <a href="services.html">💰 Harga Paket</a>
+    <a href="employees.html" class="active">👤 Karyawan</a>
+    <a href="settings.html">⚙️ Pengaturan</a>
+  </nav>
+
+  <div class="app-content">
+    <h2 class="page-title">👤 Karyawan</h2>
+    <button class="btn btn-primary" onclick="openModal()">+ Tambah Karyawan</button>
+    <div id="list" style="margin-top:16px"></div>
+  </div>
 </div>
+
 <nav class="bottom">
   <a href="dashboard.html"><span class="icon">📊</span>Dashboard</a>
-  <a href="transactions.html" class="active"><span class="icon">✂️</span>Transaksi</a>
+  <a href="transactions.html"><span class="icon">✂️</span>Transaksi</a>
   <a href="settings.html"><span class="icon">⚙️</span>Setelan</a>
 </nav>
+
 <div class="modal-bg" id="modal"><div class="modal">
   <h3 id="m-title">Tambah Karyawan</h3>
   <form id="form">

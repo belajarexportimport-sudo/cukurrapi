@@ -14,9 +14,9 @@
     <label>Nama Usaha</label>
     <input type="text" id="business" required placeholder="Barber Jaya">
     <label>Email</label>
-    <input type="email" id="email" required>
+    <input type="email" id="email" required autocomplete="username">
     <label>Password (min. 6 karakter)</label>
-    <input type="password" id="password" required minlength="6">
+    <input type="password" id="password" required minlength="6" autocomplete="new-password">
     <button type="submit" class="btn btn-primary">Daftar</button>
   </form>
   <p class="links"><a href="login.html">Sudah punya akun? Masuk</a></p>
@@ -28,18 +28,23 @@
 <script>
   $('#form-signup').addEventListener('submit', async e => {
     e.preventDefault();
+    const btn = e.target.querySelector('button');
+    btn.disabled = true;
+    $('#msg').className = 'msg';
     $('#msg').textContent = 'Mendaftarkan...';
 
-    const { data, error } = await db.auth.signUp({
-      email: $('#email').value,
+    const { error } = await db.auth.signUp({
+      email: $('#email').value.trim(),
       password: $('#password').value,
       options: {
-        data: { business_name: $('#business').value }, // dipakai saat onboarding
-        emailRedirectTo: location.origin + '/login.html'
+        data: { business_name: $('#business').value.trim() }, // dipakai saat onboarding
+        emailRedirectTo: location.origin + location.pathname.replace('signup.html', 'login.html')
       }
     });
-    if (error) return $('#msg').textContent = error.message;
+    btn.disabled = false;
+    if (error) { $('#msg').textContent = error.message; return; }
 
+    $('#msg').className = 'msg ok';
     $('#msg').innerHTML =
       '✅ Berhasil! Cek email untuk verifikasi, lalu <a href="login.html">login</a>.';
     $('#form-signup').reset();

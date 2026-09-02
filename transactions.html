@@ -9,11 +9,19 @@
 <div class="app">
   <header class="app-header" id="header"></header>
 
-  <div id="list-view">
-    <div class="filters" id="trx-filters">
-      <input type="date" id="f-date" style="flex:1">
-      <select id="f-employee" style="flex:1"></select>
-      <select id="f-service" style="flex:1"></select>
+  <nav class="desktop-nav" id="dnav">
+    <a href="dashboard.html">📊 Dashboard</a>
+    <a href="transactions.html" class="active">✂️ Transaksi</a>
+    <a href="services.html">💰 Harga Paket</a>
+    <a href="employees.html">👤 Karyawan</a>
+    <a href="settings.html">⚙️ Pengaturan</a>
+  </nav>
+
+  <div class="app-content">
+    <div class="filters trx" id="trx-filters">
+      <input type="date" id="f-date">
+      <select id="f-employee"></select>
+      <select id="f-service"></select>
     </div>
     <div id="history"></div>
   </div>
@@ -47,7 +55,7 @@
   <a href="transactions.html" class="active"><span class="icon">✂️</span>Transaksi</a>
   <a href="settings.html"><span class="icon">⚙️</span>Setelan</a>
 </nav>
-<button class="fab" onclick="openModal()">+</button>
+<button class="fab" id="fab" onclick="openModal()">+</button>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/config.js"></script>

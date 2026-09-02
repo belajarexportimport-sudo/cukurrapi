@@ -7,46 +7,58 @@
 </head>
 <body>
 <div class="app">
-  <h2 class="page-title">⚙️ Pengaturan</h2>
+  <header class="app-header" id="header"></header>
 
-  <div class="card">
-    <h3>Profil Usaha</h3>
-    <div style="text-align:center;margin:14px 0">
-      <img id="logo-preview" src="" alt="logo" style="display:none;width:80px;height:80px;border-radius:16px;object-fit:cover">
-      <div id="logo-empty" style="font-size:3rem">✂️</div>
-      <input type="file" id="logo-file" accept="image/png,image/jpeg,image/webp" style="display:none">
-      <div style="display:flex;gap:8px;justify-content:center;margin-top:8px">
-        <button type="button" class="btn btn-outline" style="width:auto;padding:8px 16px" onclick="$('#logo-file').click()">Ganti Logo</button>
-        <button type="button" class="btn btn-danger" style="width:auto;padding:8px 16px" onclick="removeLogo()">Hapus Logo</button>
+  <nav class="desktop-nav" id="dnav">
+    <a href="dashboard.html">📊 Dashboard</a>
+    <a href="transactions.html">✂️ Transaksi</a>
+    <a href="services.html">💰 Harga Paket</a>
+    <a href="employees.html">👤 Karyawan</a>
+    <a href="settings.html" class="active">⚙️ Pengaturan</a>
+  </nav>
+
+  <div class="app-content">
+    <h2 class="page-title">⚙️ Pengaturan</h2>
+
+    <div class="card">
+      <h3>Profil Usaha</h3>
+      <div style="text-align:center;margin:14px 0">
+        <img id="logo-preview" src="" alt="logo" style="display:none;width:80px;height:80px;border-radius:16px;object-fit:cover">
+        <div id="logo-empty" style="font-size:3rem">✂️</div>
+        <input type="file" id="logo-file" accept="image/png,image/jpeg,image/webp" style="display:none">
+        <div style="display:flex;gap:8px;justify-content:center;margin-top:8px">
+          <button type="button" class="btn btn-outline" style="width:auto;padding:8px 16px" onclick="$('#logo-file').click()">Ganti Logo</button>
+          <button type="button" class="btn btn-danger" style="width:auto;padding:8px 16px" onclick="removeLogo()">Hapus Logo</button>
+        </div>
+        <small style="color:#777">JPG/PNG/WebP, maks 2 MB</small>
       </div>
-      <small style="color:#777">JPG/PNG/WebP, maks 2 MB</small>
+
+      <form id="form-merchant">
+        <label>Nama Usaha</label>
+        <input id="m-name" required>
+        <label>Nomor WhatsApp</label>
+        <input id="m-phone" placeholder="08xxxxxxxxxx">
+        <label>Alamat</label>
+        <textarea id="m-address" rows="2"></textarea>
+        <button class="btn btn-gold" style="margin-top:16px">💾 Simpan Profil</button>
+      </form>
     </div>
 
-    <form id="form-merchant">
-      <label>Nama Usaha</label>
-      <input id="m-name" required>
-      <label>Nomor WhatsApp</label>
-      <input id="m-phone" placeholder="08xxxxxxxxxx">
-      <label>Alamat</label>
-      <textarea id="m-address" rows="2"></textarea>
-      <button class="btn btn-gold" style="margin-top:16px">💾 Simpan Profil</button>
-    </form>
-  </div>
+    <div class="card">
+      <h3>Akun</h3>
+      <p style="color:#777;font-size:.85rem;margin:6px 0 12px" id="acc-email"></p>
+      <label>Password Baru (ubah password)</label>
+      <input type="password" id="new-pass" placeholder="min. 6 karakter">
+      <button class="btn btn-outline" style="margin-top:10px" onclick="changePassword()">Ubah Password</button>
+      <button class="btn btn-danger" style="margin-top:10px" onclick="logout()">🚪 Logout</button>
+    </div>
 
-  <div class="card">
-    <h3>Akun</h3>
-    <p style="color:#777;font-size:.85rem;margin:6px 0 12px" id="acc-email"></p>
-    <label>Password Baru (ubah password)</label>
-    <input type="password" id="new-pass" placeholder="min. 6 karakter">
-    <button class="btn btn-outline" style="margin-top:10px" onclick="changePassword()">Ubah Password</button>
-    <button class="btn btn-danger" style="margin-top:10px" onclick="logout(db)">🚪 Logout</button>
-  </div>
-
-  <div class="card">
-    <h3>Data</h3>
-    <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px">
-      <a class="btn btn-outline" href="services.html">💰 Harga Paket</a>
-      <a class="btn btn-outline" href="employees.html">👤 Karyawan</a>
+    <div class="card">
+      <h3>Data</h3>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px">
+        <a class="btn btn-outline" href="services.html">💰 Harga Paket</a>
+        <a class="btn btn-outline" href="employees.html">👤 Karyawan</a>
+      </div>
     </div>
   </div>
 </div>

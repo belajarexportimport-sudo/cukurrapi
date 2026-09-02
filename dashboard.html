@@ -17,21 +17,23 @@
     <a href="settings.html">⚙️ Pengaturan</a>
   </nav>
 
-  <div class="filters" id="filters">
-    <button data-range="today" class="active">Hari ini</button>
-    <button data-range="yesterday">Kemarin</button>
-    <button data-range="7d">7 hari</button>
-    <button data-range="month">Bulan ini</button>
-    <button data-range="custom">📅 Custom</button>
-  </div>
-  <div id="custom-range" style="display:none;margin-bottom:14px">
-    <input type="date" id="from"> <input type="date" id="to">
-    <button class="btn btn-outline" style="margin-top:8px" onclick="loadDashboard()">Terapkan</button>
-  </div>
+  <div class="app-content" id="app-content">
+    <div class="filters" id="filters">
+      <button data-range="today" class="active">Hari ini</button>
+      <button data-range="yesterday">Kemarin</button>
+      <button data-range="7d">7 hari</button>
+      <button data-range="month">Bulan ini</button>
+      <button data-range="custom">📅 Custom</button>
+    </div>
+    <div id="custom-range" style="display:none;gap:8px;margin-bottom:14px">
+      <input type="date" id="from"> <input type="date" id="to">
+      <button class="btn btn-outline" style="margin-top:8px;width:auto;padding:10px 16px" onclick="loadDashboard()">Terapkan</button>
+    </div>
 
-  <div class="card stats" id="stats"></div>
-  <h3 style="margin:10px 0">Performa Karyawan</h3>
-  <div id="perf"></div>
+    <div class="card stats" id="stats"></div>
+    <h3 style="margin:10px 0">Performa Karyawan</h3>
+    <div id="perf"></div>
+  </div>
 </div>
 
 <nav class="bottom">
@@ -43,6 +45,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/config.js"></script>
+<script src="js/onboarding.js"></script>
 <script src="js/dashboard.js"></script>
 </body>
 </html>
