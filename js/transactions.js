@@ -1,5 +1,8 @@
 // js/transactions.js
-let employees = [], services = [], editingId = null;
+let employees = [], services = [];
+let posEmployee = null;   // { id, name } dipilih di step 1
+let editingId = null;
+let saving = false;
 
 async function init() {
   const ctx = await requireMerchant();
@@ -20,8 +23,8 @@ async function init() {
   services = svcRes.data || [];
 
   const opt = list => list.map(x => `<option value="${x.id}">${x.name}</option>`).join('');
-  $('#t-employee').innerHTML = opt(employees);
-  $('#t-service').innerHTML  = opt(services);
+  $('#e-employee').innerHTML = opt(employees);
+  $('#e-service').innerHTML  = opt(services);
   $('#f-employee').innerHTML = '<option value="">Semua pemangkas</option>' + opt(employees);
   $('#f-service').innerHTML  = '<option value="">Semua layanan</option>' + opt(services);
 
@@ -35,79 +38,143 @@ async function init() {
     return;
   }
 
-  // Harga otomatis saat layanan dipilih
-  $('#t-service').onchange = () => {
-    const s = services.find(x => x.id === $('#t-service').value);
-    if (s) $('#t-price').value = s.price;
-  };
-
   ['#f-date', '#f-employee', '#f-service'].forEach(sel => $(sel).onchange = loadHistory);
-  $('#trx-form').onsubmit = saveTrx;
+  $('#edit-form').onsubmit = saveEdit;
   loadHistory();
 
-  if (location.hash === '#new') openModal();
+  if (location.hash === '#new') openPos();
 }
 
-function openModal(trx = null) {
-  editingId = trx?.id || null;
-  $('#modal-title').textContent = trx ? 'Edit Transaksi' : 'Tambah Transaksi';
-  $('#t-date').value = trx?.transaction_date || todayISO();
-  $('#t-time').value = trx?.transaction_time?.slice(0, 5) || nowHHMM();
-  if (trx) {
-    $('#t-employee').value = trx.employee_id;
-    $('#t-service').value = trx.service_id;
-    $('#t-price').value = trx.price;
-  } else {
-    $('#trx-form').reset();
-    $('#t-date').value = todayISO();
-    $('#t-time').value = nowHHMM();
-    $('#t-price').value = services[0]?.price ?? '';
-  }
-  $('#modal').classList.add('open');
+/* ================= POS quick-add flow ================= */
+
+function openPos() {
+  posEmployee = null;
+  $('#pos-step-employee').style.display = 'block';
+  $('#pos-step-service').style.display = 'none';
+  $('#pos-step-done').style.display = 'none';
+  $('#pos-back').style.visibility = 'hidden';
+  $('#pos-title').textContent = 'Pilih Pemangkas';
+  $('#pos-time-box').classList.remove('open');
+  $('#pos-date').value = todayISO();
+  $('#pos-time').value = nowHHMM();
+
+  $('#pos-employees').innerHTML = employees.map(e => `
+    <button type="button" class="pos-btn" onclick='selectPosEmployee(${JSON.stringify(e.id)}, ${JSON.stringify(e.name)})'>
+      <span class="ic">✂️</span><span class="n">${e.name}</span>
+    </button>`).join('');
+
+  $('#pos-modal').classList.add('open');
 }
-function closeModal() {
-  $('#modal').classList.remove('open');
-  editingId = null;
+
+function closePos() {
+  $('#pos-modal').classList.remove('open');
   history.replaceState(null, '', location.pathname);
 }
 
-async function saveTrx(e) {
-  e.preventDefault();
-  const price = Number($('#t-price').value);
-  if (isNaN(price) || price < 0) return alert('Harga tidak valid');
-  if (!$('#t-employee').value || !$('#t-service').value) return alert('Pilih pemangkas dan layanan');
+function selectPosEmployee(id, name) {
+  posEmployee = { id, name };
+  $('#pos-step-employee').style.display = 'none';
+  $('#pos-step-service').style.display = 'block';
+  $('#pos-back').style.visibility = 'visible';
+  $('#pos-title').textContent = 'Pilih Layanan';
+  $('#pos-selected-employee').textContent = '✂️ ' + name;
+
+  $('#pos-services').innerHTML = services.map(s => `
+    <button type="button" class="pos-btn" onclick='selectPosService(${JSON.stringify(s.id)}, ${JSON.stringify(s.name)}, ${s.price})'>
+      <span class="n">${s.name}</span><span class="p">${rupiah(s.price)}</span>
+    </button>`).join('');
+}
+
+function posBack() {
+  posEmployee = null;
+  $('#pos-step-service').style.display = 'none';
+  $('#pos-step-employee').style.display = 'block';
+  $('#pos-back').style.visibility = 'hidden';
+  $('#pos-title').textContent = 'Pilih Pemangkas';
+}
+
+function toggleTime() {
+  $('#pos-time-box').classList.toggle('open');
+}
+
+async function selectPosService(id, name, price) {
+  if (saving || !posEmployee) return;
+  saving = true;
 
   const payload = {
-    employee_id: $('#t-employee').value,
-    service_id:  $('#t-service').value,
+    employee_id: posEmployee.id,
+    service_id: id,
     price,
-    transaction_date: $('#t-date').value,
-    transaction_time: $('#t-time').value,
+    transaction_date: $('#pos-date').value || todayISO(),
+    transaction_time: $('#pos-time').value || nowHHMM(),
   };
-  const submitBtn = $('#trx-form button[type=submit]');
-  submitBtn.disabled = true;
-  const q = editingId
-    ? db.from('transactions').update(payload).eq('id', editingId)
-    : db.from('transactions').insert(payload);
-  const { error } = await q;
-  submitBtn.disabled = false;
-  if (error) return alert(error.message);
-  closeModal();
-  toast('✅ Transaksi tersimpan');
+  const { error } = await db.from('transactions').insert(payload);
+  saving = false;
+
+  if (error) { alert(error.message); return; }
+
+  $('#pos-step-service').style.display = 'none';
+  $('#pos-step-done').style.display = 'block';
+  $('#pos-back').style.visibility = 'hidden';
+  $('#pos-title').textContent = 'Tersimpan';
+  $('#pos-done-amt').textContent = rupiah(price);
+  $('#pos-done-desc').textContent = `${posEmployee.name} · ${name}`;
+
   loadHistory();
 }
+
+function posAgain() {
+  openPos();
+}
+
+/* ================= Edit transaksi lama ================= */
 
 async function editTrx(id) {
   const { data, error } = await db.from('transactions').select('*').eq('id', id).single();
   if (error) return alert(error.message);
-  openModal(data);
+  editingId = id;
+  $('#e-employee').value = data.employee_id;
+  $('#e-service').value = data.service_id;
+  $('#e-price').value = data.price;
+  $('#e-date').value = data.transaction_date;
+  $('#e-time').value = data.transaction_time.slice(0, 5);
+  $('#edit-modal').classList.add('open');
 }
+function closeEdit() {
+  $('#edit-modal').classList.remove('open');
+  editingId = null;
+}
+
+async function saveEdit(e) {
+  e.preventDefault();
+  const price = Number($('#e-price').value);
+  if (isNaN(price) || price < 0) return alert('Harga tidak valid');
+
+  const payload = {
+    employee_id: $('#e-employee').value,
+    service_id:  $('#e-service').value,
+    price,
+    transaction_date: $('#e-date').value,
+    transaction_time: $('#e-time').value,
+  };
+  const btn = $('#edit-form button[type=submit]');
+  btn.disabled = true;
+  const { error } = await db.from('transactions').update(payload).eq('id', editingId);
+  btn.disabled = false;
+  if (error) return alert(error.message);
+  closeEdit();
+  toast('✅ Perubahan tersimpan');
+  loadHistory();
+}
+
 async function deleteTrx(id) {
   if (!confirm('Hapus transaksi ini?')) return;
   const { error } = await db.from('transactions').delete().eq('id', id);
   if (error) return alert(error.message);
   loadHistory();
 }
+
+/* ================= Riwayat ================= */
 
 async function loadHistory() {
   let q = db.from('transactions')

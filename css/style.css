@@ -97,6 +97,30 @@ input:focus, select:focus, textarea:focus { outline: none; border-color: var(--a
   border-radius: 20px 20px 0 0; padding: 20px; max-height: 92vh; overflow-y: auto; }
 .modal h3 { margin-bottom: 4px; }
 
+/* POS-style quick transaction */
+.pos-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.pos-header .back { background: none; border: 0; font-size: 1.3rem; cursor: pointer; padding: 4px 8px; }
+.pos-header h3 { flex: 1; margin: 0; }
+.pos-header .x { background: none; border: 0; font-size: 1.4rem; cursor: pointer; color: var(--muted); }
+.pos-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.pos-btn { background: #f6f6f9; border: 2px solid transparent; border-radius: 16px;
+  padding: 18px 10px; text-align: center; cursor: pointer; font: inherit; color: var(--text); }
+.pos-btn:active { transform: scale(.97); border-color: var(--accent); background: #fff8e6; }
+.pos-btn .ic { font-size: 1.8rem; display: block; margin-bottom: 6px; }
+.pos-btn .n { font-weight: 700; font-size: .95rem; display: block; }
+.pos-btn .p { font-size: .8rem; color: var(--muted); margin-top: 3px; display: block; }
+.pos-step-label { font-size: .8rem; color: var(--muted); margin-bottom: 10px; }
+.pos-time-toggle { text-align: center; margin-top: 16px; font-size: .8rem; color: var(--muted);
+  text-decoration: underline; cursor: pointer; }
+.pos-time-box { display: none; gap: 8px; margin-top: 10px; }
+.pos-time-box.open { display: flex; }
+.pos-time-box input { flex: 1; }
+.pos-done { text-align: center; padding: 20px 0; }
+.pos-done .check { font-size: 3.5rem; }
+.pos-done .amt { font-size: 1.6rem; font-weight: 800; margin: 8px 0 2px; }
+.pos-done .desc { color: var(--muted); font-size: .9rem; margin-bottom: 20px; }
+.pos-done .actions { display: flex; gap: 8px; }
+
 /* Onboarding */
 .onb-step { display: none; } .onb-step.active { display: block; }
 .onb-progress { text-align: center; font-size: .75rem; color: var(--muted); margin-bottom: 10px; }

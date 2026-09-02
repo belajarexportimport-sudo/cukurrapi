@@ -26,24 +26,61 @@
     <div id="history"></div>
   </div>
 
-  <!-- Modal tambah/edit transaksi -->
-  <div class="modal-bg" id="modal">
+  <!-- POS: tambah transaksi cepat (tap pemangkas -> tap layanan -> tersimpan) -->
+  <div class="modal-bg" id="pos-modal">
     <div class="modal">
-      <h3 id="modal-title">Tambah Transaksi</h3>
-      <form id="trx-form">
+      <div class="pos-header">
+        <button type="button" class="back" id="pos-back" style="visibility:hidden" onclick="posBack()">←</button>
+        <h3 id="pos-title">Pilih Pemangkas</h3>
+        <button type="button" class="x" onclick="closePos()">✕</button>
+      </div>
+
+      <div id="pos-step-employee">
+        <div class="pos-grid" id="pos-employees"></div>
+      </div>
+
+      <div id="pos-step-service" style="display:none">
+        <p class="pos-step-label" id="pos-selected-employee"></p>
+        <div class="pos-grid" id="pos-services"></div>
+        <div class="pos-time-toggle" onclick="toggleTime()">🕒 Ubah tanggal / jam</div>
+        <div class="pos-time-box" id="pos-time-box">
+          <input type="date" id="pos-date">
+          <input type="time" id="pos-time">
+        </div>
+      </div>
+
+      <div id="pos-step-done" style="display:none">
+        <div class="pos-done">
+          <div class="check">✅</div>
+          <div class="amt" id="pos-done-amt"></div>
+          <div class="desc" id="pos-done-desc"></div>
+          <div class="actions">
+            <button type="button" class="btn btn-outline" onclick="closePos()">Selesai</button>
+            <button type="button" class="btn btn-gold" style="flex:1" onclick="posAgain()">+ Transaksi Lagi</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit transaksi lama (dari riwayat) -->
+  <div class="modal-bg" id="edit-modal">
+    <div class="modal">
+      <h3>Edit Transaksi</h3>
+      <form id="edit-form">
         <label>Pemangkas</label>
-        <select id="t-employee" required></select>
+        <select id="e-employee" required></select>
         <label>Layanan</label>
-        <select id="t-service" required></select>
+        <select id="e-service" required></select>
         <label>Harga</label>
-        <input type="number" id="t-price" required min="0">
+        <input type="number" id="e-price" required min="0">
         <label>Tanggal</label>
-        <input type="date" id="t-date" required>
+        <input type="date" id="e-date" required>
         <label>Jam</label>
-        <input type="time" id="t-time" required>
+        <input type="time" id="e-time" required>
         <div style="display:flex;gap:8px;margin-top:18px">
-          <button type="button" class="btn btn-outline" onclick="closeModal()">Batal</button>
-          <button type="submit" class="btn btn-gold" style="flex:1">💾 Simpan Transaksi</button>
+          <button type="button" class="btn btn-outline" onclick="closeEdit()">Batal</button>
+          <button type="submit" class="btn btn-gold" style="flex:1">💾 Simpan Perubahan</button>
         </div>
       </form>
     </div>
@@ -55,7 +92,7 @@
   <a href="transactions.html" class="active"><span class="icon">✂️</span>Transaksi</a>
   <a href="settings.html"><span class="icon">⚙️</span>Setelan</a>
 </nav>
-<button class="fab" id="fab" onclick="openModal()">+</button>
+<button class="fab" id="fab" onclick="openPos()">+</button>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="js/config.js"></script>
