@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/x-icon" href="icons/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="theme-color" content="#1a1a2e">
+<title>Absensi — BarberCatat</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app">
+  <header class="app-header" id="header"></header>
+
+  <nav class="desktop-nav" id="dnav">
+    <a href="dashboard.html">📊 Dashboard</a>
+    <a href="transactions.html">✂️ Transaksi</a>
+    <a href="attendance.html" class="active">🕐 Absensi</a>
+    <a href="services.html">💰 Harga Paket</a>
+    <a href="employees.html">👤 Karyawan</a>
+    <a href="settings.html">⚙️ Pengaturan</a>
+  </nav>
+
+  <div class="app-content">
+    <div class="kasir-bar" id="kasir-bar" style="display:none">
+      <span>🔒 Kasir HP ini: <b id="kasir-name">-</b></span>
+      <span style="font-size:.7rem;color:var(--muted)">terkunci</span>
+    </div>
+
+    <div class="card" id="status-card" style="text-align:center"></div>
+
+    <h3 style="margin:18px 0 10px">Riwayat Hari Ini</h3>
+    <div id="today-list"></div>
+  </div>
+
+  <!-- Pilih kasir HP ini (kalau belum pernah didaftarkan dari halaman manapun) -->
+  <div class="modal-bg" id="kasir-modal">
+    <div class="modal">
+      <div class="pos-header"><h3 style="flex:1">Kamu siapa?</h3></div>
+      <p class="pos-step-label">Pilih namamu — HP ini akan terkunci ke nama ini secara permanen. Kalau salah pilih, minta admin reset lewat Panel Admin.</p>
+      <div class="pos-grid" id="kasir-employees"></div>
+    </div>
+  </div>
+
+  <input type="file" id="cam-input" accept="image/*" capture="user" style="display:none">
+</div>
+
+<nav class="bottom">
+  <a href="dashboard.html"><span class="icon">📊</span>Dashboard</a>
+  <a href="transactions.html"><span class="icon">✂️</span>Transaksi</a>
+  <a href="attendance.html" class="active"><span class="icon">🕐</span>Absensi</a>
+  <a href="settings.html"><span class="icon">⚙️</span>Setelan</a>
+</nav>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/attendance.js"></script>
+</body>
+</html>
