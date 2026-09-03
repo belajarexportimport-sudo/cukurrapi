@@ -61,7 +61,7 @@ create policy "merchant transactions" on transactions
 -- Ganti email di bawah dengan email akun kamu, lalu jalankan baris ini:
 -- =====================================================================
 -- insert into admins (user_id)
--- select id from auth.users where email = 'zensheet.id@gmail.com'
+-- select id from auth.users where email = 'email_kamu@contoh.com'
 -- on conflict (user_id) do nothing;
 
 -- 8) (Opsional) approve akun-akun yang sudah terlanjur ada sebelum fitur ini,
