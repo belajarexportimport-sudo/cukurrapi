@@ -25,8 +25,8 @@
 
   <div class="app-content">
     <div class="kasir-bar" id="kasir-bar" style="display:none">
-      <span>👤 Kasir HP ini: <b id="kasir-name">-</b></span>
-      <button type="button" onclick="openKasirModal(true)">Ganti</button>
+      <span>🔒 Kasir HP ini: <b id="kasir-name">-</b></span>
+      <span style="font-size:.7rem;color:var(--muted)">terkunci</span>
     </div>
 
     <button class="btn btn-gold" id="btn-add-trx" style="margin-bottom:14px" onclick="openPos()">➕ Tambah Transaksi</button>
@@ -44,9 +44,8 @@
     <div class="modal">
       <div class="pos-header">
         <h3 style="flex:1">Kamu siapa?</h3>
-        <button type="button" class="x" id="kasir-close" onclick="closeKasirModal()" style="visibility:hidden">✕</button>
       </div>
-      <p class="pos-step-label">Pilih namamu — HP ini akan mengingatnya untuk transaksi berikutnya.</p>
+      <p class="pos-step-label">Pilih namamu — HP ini akan terkunci ke nama ini secara permanen untuk semua transaksi berikutnya. Kalau salah pilih, minta admin untuk reset lewat Panel Admin.</p>
       <div class="pos-grid" id="kasir-employees"></div>
     </div>
   </div>

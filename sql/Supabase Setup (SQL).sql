@@ -48,6 +48,14 @@ create table if not exists services (
   updated_at timestamptz default now()
 );
 
+-- Device kasir: 1 device_id (dibuat & disimpan di HP) terkunci ke 1 karyawan.
+create table if not exists devices (
+  id uuid primary key,
+  merchant_id uuid references merchants not null default get_my_merchant_id(),
+  employee_id uuid references employees not null,
+  created_at timestamptz default now()
+);
+
 create table if not exists transactions (
   id uuid primary key default gen_random_uuid(),
   merchant_id uuid references merchants not null default get_my_merchant_id(),
@@ -56,6 +64,7 @@ create table if not exists transactions (
   price numeric not null check (price >= 0),
   transaction_date date not null default current_date,
   transaction_time time not null default current_time,
+  device_id uuid references devices,
   created_at timestamptz default now(),
   updated_at timestamptz default now()
 );
@@ -116,6 +125,37 @@ create policy "merchant services" on services
 create policy "merchant transactions" on transactions
   for all using (merchant_id = get_my_merchant_id() and is_my_merchant_approved())
   with check (merchant_id = get_my_merchant_id() and is_my_merchant_approved());
+
+alter table devices enable row level security;
+
+create policy "merchant register device" on devices
+  for insert with check (merchant_id = get_my_merchant_id() and is_my_merchant_approved());
+create policy "merchant read own devices" on devices
+  for select using (merchant_id = get_my_merchant_id());
+-- sengaja TIDAK ada policy update/delete untuk user biasa -> device terkunci,
+-- hanya admin yang bisa reset (lihat policy admin di bawah).
+create policy "admin manage devices" on devices
+  for all using (is_admin()) with check (is_admin());
+
+-- Anti-rekayasa: kalau device_id diisi, employee_id transaksi SELALU
+-- ditimpa paksa sesuai pendaftaran device tsb (bukan kiriman browser).
+create or replace function enforce_transaction_employee()
+returns trigger language plpgsql as $$
+begin
+  if new.device_id is not null then
+    new.employee_id := (
+      select employee_id from devices
+      where id = new.device_id and merchant_id = new.merchant_id
+    );
+  end if;
+  return new;
+end;
+$$;
+
+drop trigger if exists trg_enforce_transaction_employee on transactions;
+create trigger trg_enforce_transaction_employee
+before insert on transactions
+for each row execute function enforce_transaction_employee();
 
 -- ============ TRIGGER updated_at ============
 create or replace function set_updated_at()

@@ -1,25 +1,32 @@
 // js/transactions.js
 let employees = [], services = [];
 let merchantId = null;
-let kasir = null;         // { id, name } — karyawan yang "login" di HP ini
+let deviceId = null;
+let kasir = null;         // { id, name } — hasil resolve dari tabel devices (server), bukan cuma localStorage
 let editingId = null;
 let saving = false;
 
-function kasirKey() { return `bc_kasir_${merchantId}`; }
-
-function loadStoredKasir() {
-  try {
-    const raw = localStorage.getItem(kasirKey());
-    if (!raw) return null;
-    const val = JSON.parse(raw);
-    // pastikan karyawan itu masih aktif
-    if (val?.id && employees.some(e => e.id === val.id)) return val;
-    return null;
-  } catch { return null; }
+function getDeviceId() {
+  let id = localStorage.getItem('bc_device_id');
+  if (!id) {
+    id = crypto.randomUUID();
+    localStorage.setItem('bc_device_id', id);
+  }
+  return id;
 }
 
-function saveStoredKasir(val) {
-  try { localStorage.setItem(kasirKey(), JSON.stringify(val)); } catch {}
+// Cek ke server apakah device ini sudah terdaftar. Sumber kebenaran ada
+// di database (tabel devices + trigger), bukan di localStorage — jadi
+// tidak bisa direkayasa cuma dengan edit localStorage dari browser.
+async function resolveKasir() {
+  deviceId = getDeviceId();
+  const { data } = await db.from('devices')
+    .select('employee_id, employees(name)').eq('id', deviceId).maybeSingle();
+  if (data) {
+    kasir = { id: data.employee_id, name: data.employees?.name || '—' };
+    return true;
+  }
+  return false;
 }
 
 async function init() {
@@ -62,12 +69,12 @@ async function init() {
   $('#edit-form').onsubmit = saveEdit;
   loadHistory();
 
-  // Kasir HP ini: kalau belum pernah dipilih (atau karyawannya sudah nonaktif), wajib pilih dulu
-  kasir = loadStoredKasir();
-  if (kasir) {
+  // Kasir HP ini: dicek ke server. Kalau belum pernah didaftarkan, wajib pilih dulu.
+  const has = await resolveKasir();
+  if (has) {
     renderKasirBar();
   } else {
-    openKasirModal(false);
+    openKasirModal();
   }
 
   if (location.hash === '#new' && kasir) openPos();
@@ -80,28 +87,26 @@ function renderKasirBar() {
   $('#kasir-name').textContent = kasir?.name || '-';
 }
 
-function openKasirModal(dismissable) {
-  $('#kasir-close').style.visibility = dismissable ? 'visible' : 'hidden';
+function openKasirModal() {
   $('#kasir-employees').innerHTML = employees.map(e => `
     <button type="button" class="pos-btn" onclick='selectKasir(${JSON.stringify(e.id)}, ${JSON.stringify(e.name)})'>
       <span class="ic">✂️</span><span class="n">${e.name}</span>
     </button>`).join('');
   $('#kasir-modal').classList.add('open');
 }
-function closeKasirModal() {
-  $('#kasir-modal').classList.remove('open');
-}
-function selectKasir(id, name) {
+
+async function selectKasir(id, name) {
+  const { error } = await db.from('devices').insert({ id: deviceId, employee_id: id });
+  if (error) { alert('Gagal mendaftarkan device: ' + error.message); return; }
   kasir = { id, name };
-  saveStoredKasir(kasir);
   renderKasirBar();
-  closeKasirModal();
+  $('#kasir-modal').classList.remove('open');
 }
 
 /* ================= POS quick-add flow ================= */
 
 function openPos() {
-  if (!kasir) { openKasirModal(false); return; }
+  if (!kasir) { openKasirModal(); return; }
 
   $('#pos-step-service').style.display = 'block';
   $('#pos-step-done').style.display = 'none';
@@ -134,6 +139,7 @@ async function selectPosService(id, name, price) {
 
   const payload = {
     employee_id: kasir.id,
+    device_id: deviceId,   // server akan menimpa employee_id sesuai pendaftaran device ini
     service_id: id,
     price,
     transaction_date: $('#pos-date').value || todayISO(),
