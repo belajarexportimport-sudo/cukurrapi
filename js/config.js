@@ -2,8 +2,8 @@
 // GANTI dua nilai di bawah dengan punya project Supabase kamu sendiri.
 // Anon/publishable key AMAN dipakai di frontend. JANGAN PERNAH taruh
 // service_role key di sini atau di file frontend manapun.
-const SUPABASE_URL = 'https://XXXX.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJ...';
+const SUPABASE_URL = 'https://oeofrkomqvanpvyipufv.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9lb2Zya29tcXZhbnB2eWlwdWZ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgyNTkwMDYsImV4cCI6MjEwMzgzNTAwNn0.7KiNA727TE6EAUVpqfI4KUE12yc7lP1u6Jh8xhwKKRE';
 
 // Supabase client (library dimuat lewat <script> sebelum file ini)
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
