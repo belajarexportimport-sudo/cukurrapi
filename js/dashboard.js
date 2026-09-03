@@ -48,6 +48,28 @@ async function loadDashboard() {
     return;
   }
 
+  if (merchant.status === 'pending') {
+    renderHeader(merchant);
+    $('#app-content').innerHTML = `<div class="empty card">
+      <div class="big">⏳</div>
+      <b>Akun kamu sedang ditinjau</b><br>
+      Profil usaha <b>${merchant.name}</b> sudah kami terima dan sedang menunggu
+      persetujuan admin. Kamu akan bisa mulai mencatat transaksi setelah disetujui.<br><br>
+      <button class="btn btn-outline" onclick="location.reload()">🔄 Cek Status</button>
+    </div>`;
+    return;
+  }
+
+  if (merchant.status === 'rejected') {
+    renderHeader(merchant);
+    $('#app-content').innerHTML = `<div class="empty card">
+      <div class="big">🚫</div>
+      <b>Pendaftaran belum bisa disetujui</b><br>
+      Silakan hubungi admin untuk informasi lebih lanjut.
+    </div>`;
+    return;
+  }
+
   renderHeader(merchant);
 
   const [d1, d2] = currentDateRange();

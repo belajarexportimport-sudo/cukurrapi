@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Admin — BarberCatat</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app">
+  <header class="app-header" id="header">
+    <div style="font-size:2rem">🛡️</div>
+    <div><div class="name">Panel Admin</div><div class="tag">Persetujuan merchant baru</div></div>
+  </header>
+
+  <nav class="desktop-nav">
+    <a href="dashboard.html">📊 Dashboard</a>
+    <a href="admin.html" class="active">🛡️ Admin</a>
+  </nav>
+
+  <div class="app-content">
+    <div id="gate"></div>
+
+    <div id="admin-body" style="display:none">
+      <div class="filters" id="tab-filters">
+        <button data-status="pending" class="active">⏳ Pending</button>
+        <button data-status="approved">✅ Approved</button>
+        <button data-status="rejected">🚫 Rejected</button>
+      </div>
+      <div id="list"></div>
+    </div>
+  </div>
+</div>
+
+<nav class="bottom">
+  <a href="dashboard.html"><span class="icon">📊</span>Dashboard</a>
+  <a href="admin.html" class="active"><span class="icon">🛡️</span>Admin</a>
+</nav>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/config.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>

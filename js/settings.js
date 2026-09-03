@@ -15,6 +15,9 @@ async function init() {
 
   $('#form-merchant').onsubmit = saveMerchant;
   $('#logo-file').onchange = uploadLogo;
+
+  const { data: adminRow } = await db.from('admins').select('user_id').eq('user_id', user.id).maybeSingle();
+  if (adminRow) $('#admin-link').style.display = 'block';
 }
 
 function renderLogo(url) {

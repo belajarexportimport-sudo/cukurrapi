@@ -45,8 +45,10 @@ function checkOnboarding(ctx) {
 
       <div class="onb-step" data-step="4">
         <div class="empty"><div class="big">🎉</div>
-          <b>Selesai! Anda siap mencatat transaksi.</b></div>
-        <button type="button" class="btn btn-primary" onclick="location.reload()">Buka Dashboard</button>
+          <b>Profil usaha berhasil dibuat!</b><br>
+          Akun kamu akan ditinjau oleh admin sebelum bisa mulai mencatat transaksi.
+          Biasanya tidak lama — cek lagi ya.</div>
+        <button type="button" class="btn btn-primary" onclick="location.reload()">Lihat Status Akun</button>
       </div>
     </div>`;
   return true;

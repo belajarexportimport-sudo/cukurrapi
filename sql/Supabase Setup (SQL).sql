@@ -11,6 +11,7 @@ create table if not exists merchants (
   logo_url text,
   phone text,
   address text,
+  status text not null default 'pending' check (status in ('pending','approved','rejected')),
   created_at timestamptz default now(),
   updated_at timestamptz default now()
 );
@@ -65,28 +66,56 @@ create index if not exists idx_transactions_merchant_date
 create index if not exists idx_employees_merchant on employees (merchant_id);
 create index if not exists idx_services_merchant on services (merchant_id);
 
+-- ============ ADMIN (approval SaaS) ============
+create table if not exists admins (
+  user_id uuid primary key references auth.users,
+  created_at timestamptz default now()
+);
+alter table admins enable row level security;
+
+create or replace function is_admin()
+returns boolean
+language sql security definer set search_path = public stable
+as $$
+  select exists(select 1 from admins where user_id = auth.uid());
+$$;
+
+create or replace function is_my_merchant_approved()
+returns boolean
+language sql security definer set search_path = public stable
+as $$
+  select coalesce((select status = 'approved' from merchants where owner_id = auth.uid()), false);
+$$;
+
 -- ============ RLS ============
 alter table merchants enable row level security;
 alter table employees enable row level security;
 alter table services enable row level security;
 alter table transactions enable row level security;
 
+create policy "self read admin" on admins
+  for select using (user_id = auth.uid());
+
 -- merchants: user hanya boleh baca/ubah merchant miliknya sendiri
 create policy "own merchant" on merchants
   for all using (owner_id = auth.uid()) with check (owner_id = auth.uid());
 
--- employees / services / transactions: dibatasi berdasarkan merchant_id milik user
+-- admin boleh baca/ubah SEMUA merchant (untuk approve/reject)
+create policy "admin manage merchants" on merchants
+  for all using (is_admin()) with check (is_admin());
+
+-- employees / services / transactions: dibatasi merchant_id milik user DAN merchant harus approved
 create policy "merchant employees" on employees
-  for all using (merchant_id = get_my_merchant_id())
-  with check (merchant_id = get_my_merchant_id());
+  for all using (merchant_id = get_my_merchant_id() and is_my_merchant_approved())
+  with check (merchant_id = get_my_merchant_id() and is_my_merchant_approved());
 
 create policy "merchant services" on services
-  for all using (merchant_id = get_my_merchant_id())
-  with check (merchant_id = get_my_merchant_id());
+  for all using (merchant_id = get_my_merchant_id() and is_my_merchant_approved())
+  with check (merchant_id = get_my_merchant_id() and is_my_merchant_approved());
 
 create policy "merchant transactions" on transactions
-  for all using (merchant_id = get_my_merchant_id())
-  with check (merchant_id = get_my_merchant_id());
+  for all using (merchant_id = get_my_merchant_id() and is_my_merchant_approved())
+  with check (merchant_id = get_my_merchant_id() and is_my_merchant_approved());
 
 -- ============ TRIGGER updated_at ============
 create or replace function set_updated_at()

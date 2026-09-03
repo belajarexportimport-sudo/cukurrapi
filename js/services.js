@@ -5,7 +5,7 @@ let serviceList = [];
 async function init() {
   const ctx = await requireMerchant();
   if (!ctx) return;
-  if (!ctx.merchant) { location.href = 'dashboard.html'; return; }
+  if (!ctx.merchant || ctx.merchant.status !== 'approved') { location.href = 'dashboard.html'; return; }
   $('#header').innerHTML = `<div style="font-size:2rem">✂️</div>
     <div><div class="name">${ctx.merchant.name}</div><div class="tag">Daftar harga layanan</div></div>`;
   load();
