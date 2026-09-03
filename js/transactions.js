@@ -2,32 +2,9 @@
 let employees = [], services = [];
 let merchantId = null;
 let deviceId = null;
-let kasir = null;         // { id, name } — hasil resolve dari tabel devices (server), bukan cuma localStorage
+let kasir = null;         // { id, name } — hasil resolve dari tabel devices (server)
 let editingId = null;
 let saving = false;
-
-function getDeviceId() {
-  let id = localStorage.getItem('bc_device_id');
-  if (!id) {
-    id = crypto.randomUUID();
-    localStorage.setItem('bc_device_id', id);
-  }
-  return id;
-}
-
-// Cek ke server apakah device ini sudah terdaftar. Sumber kebenaran ada
-// di database (tabel devices + trigger), bukan di localStorage — jadi
-// tidak bisa direkayasa cuma dengan edit localStorage dari browser.
-async function resolveKasir() {
-  deviceId = getDeviceId();
-  const { data } = await db.from('devices')
-    .select('employee_id, employees(name)').eq('id', deviceId).maybeSingle();
-  if (data) {
-    kasir = { id: data.employee_id, name: data.employees?.name || '—' };
-    return true;
-  }
-  return false;
-}
 
 async function init() {
   const ctx = await requireMerchant();
@@ -69,9 +46,11 @@ async function init() {
   $('#edit-form').onsubmit = saveEdit;
   loadHistory();
 
-  // Kasir HP ini: dicek ke server. Kalau belum pernah didaftarkan, wajib pilih dulu.
-  const has = await resolveKasir();
-  if (has) {
+  // Kasir HP ini: dicek ke server (shared dengan halaman Absensi). Kalau
+  // belum pernah didaftarkan, wajib pilih dulu.
+  kasir = await resolveKasir();
+  if (kasir) {
+    deviceId = kasir.deviceId;
     renderKasirBar();
   } else {
     openKasirModal();
@@ -96,8 +75,9 @@ function openKasirModal() {
 }
 
 async function selectKasir(id, name) {
-  const { error } = await db.from('devices').insert({ id: deviceId, employee_id: id });
+  const { error, deviceId: did } = await registerKasir(id);
   if (error) { alert('Gagal mendaftarkan device: ' + error.message); return; }
+  deviceId = did;
   kasir = { id, name };
   renderKasirBar();
   $('#kasir-modal').classList.remove('open');
