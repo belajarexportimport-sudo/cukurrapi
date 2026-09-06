@@ -11,10 +11,14 @@
 -- Perbaikan: primary key digabung jadi (id, merchant_id), jadi 1 device_id
 -- bisa terdaftar independen di tiap merchant tanpa saling tabrak.
 --
+-- Ada 2 tabel yang mereferensikan devices.id (transactions & attendance),
+-- keduanya perlu dilepas dulu constraint-nya sebelum primary key diubah.
+--
 -- Aman dijalankan di atas database yang sudah ada. Jalankan sekali di
 -- Supabase SQL Editor.
 -- =====================================================================
 
 alter table transactions drop constraint if exists transactions_device_id_fkey;
+alter table attendance drop constraint if exists attendance_device_id_fkey;
 alter table devices drop constraint if exists devices_pkey;
 alter table devices add primary key (id, merchant_id);
