@@ -72,6 +72,7 @@ async function loadDashboard() {
 
   renderHeader(merchant);
   renderTrialBanner(merchant);
+  maybeShowTrialPopup(merchant);
 
   const [d1, d2] = currentDateRange();
   const { data: trx, error } = await db.from('transactions')

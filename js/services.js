@@ -9,6 +9,7 @@ async function init() {
   $('#header').innerHTML = `<div style="font-size:2rem">✂️</div>
     <div><div class="name">${ctx.merchant.name}</div><div class="tag">Daftar harga layanan</div></div>`;
   renderTrialBanner(ctx.merchant);
+  maybeShowTrialPopup(ctx.merchant);
   load();
   $('#form').onsubmit = save;
 }

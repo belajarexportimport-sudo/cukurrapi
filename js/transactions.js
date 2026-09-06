@@ -18,6 +18,7 @@ async function init() {
     <div><div class="name">${merchant.name}</div>
     <div class="tag">Riwayat & pencatatan transaksi</div></div>`;
   renderTrialBanner(merchant);
+  maybeShowTrialPopup(merchant);
 
   const [empRes, svcRes] = await Promise.all([
     db.from('employees').select('*').eq('is_active', true).order('name'),

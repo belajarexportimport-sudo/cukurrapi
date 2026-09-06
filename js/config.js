@@ -5,7 +5,6 @@
 const SUPABASE_URL = 'https://oeofrkomqvanpvyipufv.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9lb2Zya29tcXZhbnB2eWlwdWZ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgyNTkwMDYsImV4cCI6MjEwMzgzNTAwNn0.7KiNA727TE6EAUVpqfI4KUE12yc7lP1u6Jh8xhwKKRE';
 
-
 // Supabase client (library dimuat lewat <script> sebelum file ini)
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -83,6 +82,44 @@ function renderTrialBanner(merchant) {
   const header = $('#header');
   (header?.parentElement || $('.app-content') || document.body)
     .insertBefore(el, header ? header.nextSibling : null);
+}
+
+// Popup peringatan kalau trial sisa ≤3 hari -- muncul cuma 1x per hari
+// (per browser) biar tidak mengganggu tiap pindah halaman. Dipanggil
+// bersamaan dengan renderTrialBanner() di setiap halaman.
+function maybeShowTrialPopup(merchant) {
+  if (!merchant || merchant.status !== 'pending' || !merchant.trial_ends_at) return;
+  const msLeft = new Date(merchant.trial_ends_at) - new Date();
+  if (msLeft <= 0) return; // sudah habis -> ada layar kunci sendiri di dashboard, tidak perlu popup lagi
+  const daysLeft = Math.ceil(msLeft / 86400000);
+  if (daysLeft > 3) return;
+
+  const todayKey = 'trial_popup_' + todayISO();
+  if (localStorage.getItem(todayKey)) return; // sudah muncul hari ini
+  localStorage.setItem(todayKey, '1');
+
+  const bg = document.createElement('div');
+  bg.className = 'modal-bg open';
+  bg.innerHTML = `
+    <div class="modal" style="text-align:center">
+      <div style="font-size:2.5rem">⏳</div>
+      <h3>Trial tinggal ${daysLeft} hari lagi!</h3>
+      <p style="color:var(--muted,#777);margin:8px 0 18px">
+        Supaya <b>${escapeHtmlSafe(merchant.name)}</b> tidak berhenti mencatat transaksi,
+        yuk hubungi admin sekarang untuk lanjut berlangganan.
+      </p>
+      <a class="btn btn-gold" href="${ADMIN_WA_LINK}" target="_blank"
+        style="display:block;text-decoration:none;margin-bottom:10px">💬 Hubungi Admin via WhatsApp</a>
+      <button class="btn btn-outline" style="width:100%" type="button"
+        onclick="this.closest('.modal-bg').remove()">Nanti Saja</button>
+    </div>`;
+  document.body.appendChild(bg);
+}
+
+function escapeHtmlSafe(s) {
+  const d = document.createElement('div');
+  d.textContent = s || '';
+  return d.innerHTML;
 }
 
 // ===== Device kasir (dipakai bareng oleh transactions.js & attendance.js) =====

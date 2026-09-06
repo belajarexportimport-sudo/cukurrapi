@@ -15,6 +15,7 @@ async function init() {
     ${merchant.logo_url ? `<img class="logo" src="${merchant.logo_url}" alt="logo">` : '<div style="font-size:2rem">✂️</div>'}
     <div><div class="name">${merchant.name}</div><div class="tag">Absensi karyawan</div></div>`;
   renderTrialBanner(merchant);
+  maybeShowTrialPopup(merchant);
 
   kasir = await resolveKasir(merchantId);
   if (kasir) {
