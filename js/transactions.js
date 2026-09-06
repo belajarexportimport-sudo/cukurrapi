@@ -9,7 +9,7 @@ let saving = false;
 async function init() {
   const ctx = await requireMerchant();
   if (!ctx) return;
-  if (!ctx.merchant || ctx.merchant.status !== 'approved') { location.href = 'dashboard.html'; return; }
+  if (!ctx.merchant || !merchantActive(ctx.merchant)) { location.href = 'dashboard.html'; return; }
   const { merchant } = ctx;
   merchantId = merchant.id;
 
@@ -17,6 +17,7 @@ async function init() {
     ${merchant.logo_url ? `<img class="logo" src="${merchant.logo_url}" alt="logo">` : '<div style="font-size:2rem">✂️</div>'}
     <div><div class="name">${merchant.name}</div>
     <div class="tag">Riwayat & pencatatan transaksi</div></div>`;
+  renderTrialBanner(merchant);
 
   const [empRes, svcRes] = await Promise.all([
     db.from('employees').select('*').eq('is_active', true).order('name'),

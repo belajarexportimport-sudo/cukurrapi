@@ -48,14 +48,14 @@ async function loadDashboard() {
     return;
   }
 
-  if (merchant.status === 'pending') {
+  if (merchant.status === 'pending' && !merchantActive(merchant)) {
     renderHeader(merchant);
     $('#app-content').innerHTML = `<div class="empty card">
-      <div class="big">⏳</div>
-      <b>Akun kamu sedang ditinjau</b><br>
-      Profil usaha <b>${merchant.name}</b> sudah kami terima dan sedang menunggu
-      persetujuan admin. Kamu akan bisa mulai mencatat transaksi setelah disetujui.<br><br>
-      <button class="btn btn-outline" onclick="location.reload()">🔄 Cek Status</button>
+      <div class="big">🔒</div>
+      <b>Masa coba gratis sudah habis</b><br>
+      Terima kasih sudah mencoba <b>${merchant.name}</b> di BarberCatat!
+      Untuk lanjut memakai semua fitur, silakan hubungi admin untuk berlangganan.<br><br>
+      <a class="btn btn-gold" href="${ADMIN_WA_LINK}" target="_blank">💬 Hubungi Admin via WhatsApp</a>
     </div>`;
     return;
   }
@@ -71,6 +71,7 @@ async function loadDashboard() {
   }
 
   renderHeader(merchant);
+  renderTrialBanner(merchant);
 
   const [d1, d2] = currentDateRange();
   const { data: trx, error } = await db.from('transactions')

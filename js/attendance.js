@@ -7,13 +7,14 @@ let openAttendanceId = null; // id absensi hari ini yang belum check-out
 async function init() {
   const ctx = await requireMerchant();
   if (!ctx) return;
-  if (!ctx.merchant || ctx.merchant.status !== 'approved') { location.href = 'dashboard.html'; return; }
+  if (!ctx.merchant || !merchantActive(ctx.merchant)) { location.href = 'dashboard.html'; return; }
   const { merchant } = ctx;
   merchantId = merchant.id;
 
   $('#header').innerHTML = `
     ${merchant.logo_url ? `<img class="logo" src="${merchant.logo_url}" alt="logo">` : '<div style="font-size:2rem">✂️</div>'}
     <div><div class="name">${merchant.name}</div><div class="tag">Absensi karyawan</div></div>`;
+  renderTrialBanner(merchant);
 
   kasir = await resolveKasir(merchantId);
   if (kasir) {

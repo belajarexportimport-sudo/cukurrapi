@@ -5,8 +5,14 @@
 const SUPABASE_URL = 'https://oeofrkomqvanpvyipufv.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9lb2Zya29tcXZhbnB2eWlwdWZ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgyNTkwMDYsImV4cCI6MjEwMzgzNTAwNn0.7KiNA727TE6EAUVpqfI4KUE12yc7lP1u6Jh8xhwKKRE';
 
+
 // Supabase client (library dimuat lewat <script> sebelum file ini)
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// Nomor WA admin/CS untuk info berlangganan (format internasional tanpa
+// + atau 0 di depan, mis. 62812xxxxxxx). GANTI dengan nomor kamu sendiri.
+const ADMIN_WA_NUMBER = '628123456789';
+const ADMIN_WA_LINK = `https://wa.me/${ADMIN_WA_NUMBER}?text=${encodeURIComponent('Halo, saya mau lanjut berlangganan BarberCatat')}`;
 
 // Helper DOM & format
 const $  = (s, el = document) => el.querySelector(s);
@@ -44,6 +50,39 @@ async function requireMerchant() {
 async function logout() {
   await db.auth.signOut();
   location.href = 'login.html';
+}
+
+// Merchant dianggap "aktif" (boleh pakai semua fitur) kalau statusnya
+// approved, ATAU statusnya masih pending tapi masa trial belum habis.
+function merchantActive(merchant) {
+  if (!merchant) return false;
+  if (merchant.status === 'approved') return true;
+  if (merchant.status === 'pending' && merchant.trial_ends_at) {
+    return new Date(merchant.trial_ends_at) > new Date();
+  }
+  return false;
+}
+
+// Sisipkan banner kecil "sisa trial" setelah header, di halaman mana pun.
+// Tidak melakukan apa-apa kalau bukan trial aktif (mis. sudah approved).
+function renderTrialBanner(merchant) {
+  if (!merchant || merchant.status !== 'pending' || !merchant.trial_ends_at) return;
+  const msLeft = new Date(merchant.trial_ends_at) - new Date();
+  if (msLeft <= 0 || document.getElementById('trial-banner')) return;
+  const daysLeft = Math.max(1, Math.ceil(msLeft / 86400000));
+  const el = document.createElement('div');
+  el.id = 'trial-banner';
+  el.style.cssText = 'background:#fff8e6;border:1px solid #f0dca0;border-radius:12px;' +
+    'padding:10px 14px;margin-bottom:12px;font-size:.82rem;display:flex;' +
+    'justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap';
+  el.innerHTML = `
+    <span>⏳ Masa coba gratis: sisa <b>${daysLeft} hari</b></span>
+    <a href="${ADMIN_WA_LINK}" target="_blank"
+      style="background:#1a1a2e;color:#fff;border-radius:8px;padding:5px 12px;
+      font-size:.75rem;text-decoration:none;white-space:nowrap">Hubungi Admin</a>`;
+  const header = $('#header');
+  (header?.parentElement || $('.app-content') || document.body)
+    .insertBefore(el, header ? header.nextSibling : null);
 }
 
 // ===== Device kasir (dipakai bareng oleh transactions.js & attendance.js) =====

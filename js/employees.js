@@ -5,9 +5,10 @@ let employeeList = [];
 async function init() {
   const ctx = await requireMerchant();
   if (!ctx) return;
-  if (!ctx.merchant || ctx.merchant.status !== 'approved') { location.href = 'dashboard.html'; return; }
+  if (!ctx.merchant || !merchantActive(ctx.merchant)) { location.href = 'dashboard.html'; return; }
   $('#header').innerHTML = `<div style="font-size:2rem">✂️</div>
     <div><div class="name">${ctx.merchant.name}</div><div class="tag">Master data karyawan</div></div>`;
+  renderTrialBanner(ctx.merchant);
   load();
   $('#form').onsubmit = save;
 }
