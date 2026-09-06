@@ -48,7 +48,7 @@ async function init() {
 
   // Kasir HP ini: dicek ke server (shared dengan halaman Absensi). Kalau
   // belum pernah didaftarkan, wajib pilih dulu.
-  kasir = await resolveKasir();
+  kasir = await resolveKasir(merchantId);
   if (kasir) {
     deviceId = kasir.deviceId;
     renderKasirBar();
@@ -75,7 +75,7 @@ function openKasirModal() {
 }
 
 async function selectKasir(id, name) {
-  const { error, deviceId: did } = await registerKasir(id);
+  const { error, deviceId: did } = await registerKasir(id, merchantId);
   if (error) { alert('Gagal mendaftarkan device: ' + error.message); return; }
   deviceId = did;
   kasir = { id, name };

@@ -15,7 +15,7 @@ async function init() {
     ${merchant.logo_url ? `<img class="logo" src="${merchant.logo_url}" alt="logo">` : '<div style="font-size:2rem">✂️</div>'}
     <div><div class="name">${merchant.name}</div><div class="tag">Absensi karyawan</div></div>`;
 
-  kasir = await resolveKasir();
+  kasir = await resolveKasir(merchantId);
   if (kasir) {
     renderKasirBar();
   } else {
@@ -48,7 +48,7 @@ function renderKasirBar() {
 }
 
 async function selectKasir(id, name) {
-  const { error, deviceId } = await registerKasir(id);
+  const { error, deviceId } = await registerKasir(id, merchantId);
   if (error) { alert('Gagal mendaftarkan device: ' + error.message); return; }
   kasir = { id, name, deviceId };
   renderKasirBar();

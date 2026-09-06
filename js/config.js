@@ -2,8 +2,8 @@
 // GANTI dua nilai di bawah dengan punya project Supabase kamu sendiri.
 // Anon/publishable key AMAN dipakai di frontend. JANGAN PERNAH taruh
 // service_role key di sini atau di file frontend manapun.
-const SUPABASE_URL = 'https://oeofrkomqvanpvyipufv.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9lb2Zya29tcXZhbnB2eWlwdWZ2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgyNTkwMDYsImV4cCI6MjEwMzgzNTAwNn0.7KiNA727TE6EAUVpqfI4KUE12yc7lP1u6Jh8xhwKKRE';
+const SUPABASE_URL = 'https://XXXX.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJ...';
 
 // Supabase client (library dimuat lewat <script> sebelum file ini)
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -53,21 +53,26 @@ function getDeviceId() {
   return id;
 }
 
-// Cek ke server siapa kasir yang terkunci ke device ini. Return null kalau
-// device belum pernah didaftarkan.
-async function resolveKasir() {
+// Cek ke server siapa kasir yang terdaftar untuk HP ini, khusus di
+// merchant yang sedang login. Return null kalau device belum pernah
+// didaftarkan DI MERCHANT INI (device yang sama bisa saja sudah
+// terdaftar di merchant lain -- itu tidak dihitung).
+async function resolveKasir(merchantId) {
   const deviceId = getDeviceId();
   const { data } = await db.from('devices')
-    .select('employee_id, employees(name)').eq('id', deviceId).maybeSingle();
+    .select('employee_id, employees(name)')
+    .eq('id', deviceId).eq('merchant_id', merchantId).maybeSingle();
   if (data) return { id: data.employee_id, name: data.employees?.name || '—', deviceId };
   return null;
 }
 
-// Daftarkan (atau GANTI) kasir HP ini. Dipakai baik saat pertama kali pilih
-// nama, maupun saat kasir sedang aktif menekan "Ganti Kasir" -- keduanya
-// upsert ke row device yang sama, jadi tidak perlu peran admin.
-async function registerKasir(employeeId) {
+// Daftarkan (atau GANTI) kasir HP ini untuk merchant yang sedang login.
+// Dipakai baik saat pertama kali pilih nama, maupun saat kasir sedang
+// aktif menekan "Ganti Kasir" -- keduanya upsert ke row (device, merchant)
+// yang sama, jadi tidak perlu peran admin.
+async function registerKasir(employeeId, merchantId) {
   const deviceId = getDeviceId();
-  const { error } = await db.from('devices').upsert({ id: deviceId, employee_id: employeeId });
+  const { error } = await db.from('devices')
+    .upsert({ id: deviceId, employee_id: employeeId, merchant_id: merchantId });
   return { error, deviceId };
 }

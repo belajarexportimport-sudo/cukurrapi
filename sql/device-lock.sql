@@ -20,8 +20,17 @@ drop policy if exists "merchant read own devices" on devices;
 create policy "merchant read own devices" on devices
   for select using (merchant_id = get_my_merchant_id());
 
--- SENGAJA tidak ada policy UPDATE/DELETE untuk user biasa -> user tidak
--- bisa ganti/hapus sendiri. Hanya admin (lihat policy di bawah) yang bisa.
+-- UPDATE: siapa pun yang sedang pegang HP itu boleh "Ganti Kasir" sendiri
+-- kapan saja (mis. gantian shift) -- tidak perlu lagi minta admin reset.
+-- Employee_id lama ditimpa employee_id baru, device_id (id) tidak berubah.
+drop policy if exists "merchant update own device" on devices;
+create policy "merchant update own device" on devices
+  for update using (merchant_id = get_my_merchant_id())
+  with check (merchant_id = get_my_merchant_id());
+
+-- DELETE tetap tidak dibuka untuk user biasa (tidak perlu -- ganti pakai
+-- UPDATE di atas). Admin tetap bisa hapus lewat policy admin di bawah,
+-- untuk kasus HP hilang/rusak dan device row-nya mau dibersihkan.
 drop policy if exists "admin manage devices" on devices;
 create policy "admin manage devices" on devices
   for all using (is_admin()) with check (is_admin());
