@@ -11,7 +11,7 @@ const db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // Nomor WA admin/CS untuk info berlangganan (format internasional tanpa
 // + atau 0 di depan, mis. 62812xxxxxxx). GANTI dengan nomor kamu sendiri.
-const ADMIN_WA_NUMBER = '628123456789';
+const ADMIN_WA_NUMBER = '6281290650963';
 const ADMIN_WA_LINK = `https://wa.me/${ADMIN_WA_NUMBER}?text=${encodeURIComponent('Halo, saya mau lanjut berlangganan BarberCatat')}`;
 
 // Helper DOM & format
