@@ -19,17 +19,27 @@ async function init() {
   if (kasir) {
     renderKasirBar();
   } else {
-    const { data: emp } = await db.from('employees').select('*').eq('is_active', true).order('name');
-    $('#kasir-employees').innerHTML = (emp || []).map(e => `
-      <button type="button" class="pos-btn" onclick='selectKasir(${JSON.stringify(e.id)}, ${JSON.stringify(e.name)})'>
-        <span class="ic">✂️</span><span class="n">${e.name}</span>
-      </button>`).join('');
-    $('#kasir-modal').classList.add('open');
+    openKasirModal();
   }
 
   $('#cam-input').onchange = handlePhoto;
   if (kasir) loadStatus();
   loadToday();
+}
+
+async function openKasirModal() {
+  const { data: emp } = await db.from('employees').select('*').eq('is_active', true).order('name');
+  $('#kasir-employees').innerHTML = (emp || []).map(e => `
+    <button type="button" class="pos-btn" onclick='selectKasir(${JSON.stringify(e.id)}, ${JSON.stringify(e.name)})'>
+      <span class="ic">✂️</span><span class="n">${e.name}</span>
+    </button>`).join('');
+  $('#kasir-modal').classList.add('open');
+}
+
+// Dipanggil dari tombol "Ganti Kasir" -- siapa pun yang pegang HP ini boleh
+// ganti sendiri kapan saja, tidak perlu admin.
+function switchKasir() {
+  openKasirModal();
 }
 
 function renderKasirBar() {

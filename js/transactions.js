@@ -83,6 +83,12 @@ async function selectKasir(id, name) {
   $('#kasir-modal').classList.remove('open');
 }
 
+// Dipanggil dari tombol "Ganti Kasir" -- siapa pun yang pegang HP ini boleh
+// ganti sendiri kapan saja, tidak perlu admin.
+function switchKasir() {
+  openKasirModal();
+}
+
 /* ================= POS quick-add flow ================= */
 
 function openPos() {

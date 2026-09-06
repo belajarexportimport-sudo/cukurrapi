@@ -81,7 +81,7 @@ async function loadDevices() {
 }
 
 async function resetDevice(id) {
-  if (!confirm('Reset device ini? HP tersebut wajib pilih nama kasir lagi saat transaksi berikutnya.')) return;
+  if (!confirm('Hapus pendaftaran device ini? Biasanya tidak perlu -- karyawan sudah bisa ganti kasir sendiri lewat tombol "Ganti Kasir" di HP-nya. Pakai ini hanya untuk kasus HP hilang/rusak.')) return;
   const { error } = await db.from('devices').delete().eq('id', id);
   if (error) return alert(error.message);
   toast('🔓 Device direset');
