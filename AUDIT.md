@@ -113,3 +113,31 @@ Dokumen ini merangkum semua masalah yang ditemukan pada kode sebelumnya dan apa 
    verifikasi & reset password).
 4. Deploy folder ini ke Cloudflare Pages (root langsung berisi
    `index.html`, tidak perlu build step — HTML/CSS/JS vanilla sesuai PRD).
+
+## Update: Kunci Kasir per HP dibuat fleksibel (self-service)
+
+Sebelumnya: 1 HP dikunci permanen ke 1 karyawan, ganti nama harus lewat
+Panel Admin (hapus row `devices`).
+
+Sekarang: HP tetap "mengingat" kasir terakhir (jadi tidak ditanya nama
+tiap buka halaman Transaksi/Absensi), tapi siapa pun yang pegang HP itu
+bisa ganti sendiri kapan saja lewat tombol **"Ganti Kasir"** — tanpa admin.
+Perlindungan anti-rekayasa di server (transaksi selalu tercatat atas nama
+kasir yang sedang terdaftar di HP itu, bukan yang bisa dipalsukan dari
+browser) tetap jalan seperti biasa.
+
+Yang berubah:
+- `sql/device-lock.sql` — tambah policy UPDATE di tabel `devices` supaya
+  merchant boleh meng-upsert device miliknya sendiri (sebelumnya cuma
+  admin yang bisa ubah/hapus). **Perlu dijalankan ulang di SQL Editor**
+  kalau project Supabase kamu sudah pernah menjalankan `device-lock.sql`
+  versi lama — cukup jalankan ulang seluruh file ini, aman (idempotent).
+- `js/config.js` — `registerKasir()` sekarang `upsert` (bukan `insert`),
+  supaya bisa dipakai baik untuk pilih pertama kali maupun ganti kasir.
+- `transactions.html`, `attendance.html`, `js/transactions.js`,
+  `js/attendance.js` — tombol "Ganti Kasir" ditambahkan di kasir-bar,
+  teks modal "Kamu siapa?" diperbarui (tidak lagi bilang "permanen" /
+  "minta admin reset").
+- `js/admin.js` — teks konfirmasi "Reset Device" di Panel Admin
+  diperjelas jadi opsi darurat (HP hilang/rusak), karena jalur normal
+  sekarang lewat tombol "Ganti Kasir" di HP masing-masing.

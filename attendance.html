@@ -26,8 +26,8 @@
 
   <div class="app-content">
     <div class="kasir-bar" id="kasir-bar" style="display:none">
-      <span>🔒 Kasir HP ini: <b id="kasir-name">-</b></span>
-      <span style="font-size:.7rem;color:var(--muted)">terkunci</span>
+      <span>✂️ Kasir: <b id="kasir-name">-</b></span>
+      <button type="button" onclick="switchKasir()">Ganti Kasir</button>
     </div>
 
     <div class="card" id="status-card" style="text-align:center"></div>
@@ -40,7 +40,7 @@
   <div class="modal-bg" id="kasir-modal">
     <div class="modal">
       <div class="pos-header"><h3 style="flex:1">Kamu siapa?</h3></div>
-      <p class="pos-step-label">Pilih namamu — HP ini akan terkunci ke nama ini secara permanen. Kalau salah pilih, minta admin reset lewat Panel Admin.</p>
+      <p class="pos-step-label">Pilih namamu. HP ini akan mengingat pilihanmu, jadi tidak akan ditanya lagi tiap buka — sampai kamu ganti sendiri lewat tombol "Ganti Kasir".</p>
       <div class="pos-grid" id="kasir-employees"></div>
     </div>
   </div>
